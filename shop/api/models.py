@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 #need to add AUTH_USER_MODEL in settings.py
 class User(AbstractUser): #Abstracts Django's default User model
@@ -27,7 +28,7 @@ class Order(models.Model):
         CANCELLED = 'Cancelled'
     
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField( #stores text shows status of order in its lifecycle
         max_length=10,
