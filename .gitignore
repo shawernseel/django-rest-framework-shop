@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+#output file for python manage.py graph_models api > models.dot
+models.dot
