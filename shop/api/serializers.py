@@ -19,15 +19,33 @@ class ProductSerializer(serializers.ModelSerializer):
         return value
     
 class OrderItemSerializer(serializers.ModelSerializer):
+    #product = ProductSerializer() #this is what we would do if we wanted data unflattened wrapped in { product }
+
+    #product_name and product_price are flattened from product (displayed at same level as quantity and other fields in OrderItem)
+    product_name = serializers.CharField(source='product.name')
+    product_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        source='product.price'
+    )
+    
     class Meta:
         model = OrderItem
         fields = (
-            'product', #fk
+            'product_name',
+            'prodcut_price',
             'quantity',
+            'item_subtotal', #@property getters can just go in here too!
         )
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True) #serializes OrderItem objects in Order when serializing Order
+    total_price = serializers.SerializerMethodField() #by default this is serializers.SerializerMethodField(method_name='get_total_price')
+
+
+    def get_total_price(self, obj):
+        order_items = obj.items.all() #item is the related name
+        return sum(order_item.item_subtotal for order_item in order_items)
 
     class Meta:
         model = Order
@@ -37,4 +55,5 @@ class OrderSerializer(serializers.ModelSerializer):
             'user',         #note how user is a fk
             'status',
             'items',        #this is the fk related name from OrderItem since we are accessing it from the reverse side
+            'total_price'
         )
