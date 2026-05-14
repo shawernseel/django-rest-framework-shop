@@ -25,7 +25,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product', #fk
             'quantity',
         )
-    
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True) #serializes OrderItem objects in Order when serializing Order
 
@@ -36,5 +36,5 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_at',
             'user',         #note how user is a fk
             'status',
-            'items',
+            'items',        #this is the fk related name from OrderItem since we are accessing it from the reverse side
         )
