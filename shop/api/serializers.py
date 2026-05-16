@@ -42,7 +42,6 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True) #serializes OrderItem objects in Order when serializing Order
     total_price = serializers.SerializerMethodField() #by default this is serializers.SerializerMethodField(method_name='get_total_price')
 
-
     def get_total_price(self, obj):
         order_items = obj.items.all() #item is the related name
         return sum(order_item.item_subtotal for order_item in order_items)
@@ -57,3 +56,10 @@ class OrderSerializer(serializers.ModelSerializer):
             'items',        #this is the fk related name from OrderItem since we are accessing it from the reverse side
             'total_price'
         )
+
+#use a genaric serializer when the data is not tied to a particular model
+class ProductInfoSerializer(serializers.Serializer):
+    #get all products count of products, max price
+    products = ProductSerializer(many=True)
+    count = serializers.IntegerField()
+    max_price = serializers.FloatField()
