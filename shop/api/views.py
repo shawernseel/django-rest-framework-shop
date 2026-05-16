@@ -20,7 +20,11 @@ def product_detail(request, pk):
 
 @api_view(['GET'])
 def order_list(request):
-    orders = Order.objects.all()
+    #orders = Order.objects.all() #bellow is an optomization for this line
+    orders = Order.objects.prefetch_related(
+        #'items' #this is commented out because the below will include this implicitly
+        'items__product' #uses related name to prefetch
+    ) #.all() #prefetch_related automatically includes .all() so we don't need a .all() here
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
 

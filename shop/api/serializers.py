@@ -33,7 +33,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = (
             'product_name',
-            'prodcut_price',
+            'product_price',
             'quantity',
             'item_subtotal', #@property getters can just go in here too!
         )
