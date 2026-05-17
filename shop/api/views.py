@@ -39,6 +39,16 @@ class OrderListAPIView(generics.RetrieveAPIView):
     products = Order.objects.prefetch_related('items__product')
     serializer_class = OrderSerializer
 
+#this displays all orders made by a specific user
+class UserOrderListAPIView(generics.ListAPIView):
+    queryset = Order.objects.prefetch_related('items__product')
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset() #this gets the base queryset from the super ListAPIView
+        return qs.filter(user=self.request.user) #filter for user that is authenticated
+        #request is there in class based view get_queryset method
+
 @api_view(['GET'])
 def product_info(request):
     products = Product.objects.all()
