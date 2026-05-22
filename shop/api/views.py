@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 #function based views
 # @api_view(['GET']) #this decorator limits to GET requests #this makes it so you can view the browsable api
@@ -46,17 +47,27 @@ class UserOrderListAPIView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
+    def get_queryset(self): #from GenericAPIView (superclass of ListAPIView)
         qs = super().get_queryset() #this gets the base queryset from the super ListAPIView
         return qs.filter(user=self.request.user) #filter for user that is authenticated
         #request is there in class based view get_queryset method
 
-@api_view(['GET'])
-def product_info(request):
-    products = Product.objects.all()
-    serializer = ProductInfoSerializer({ #this passes a dictionary to create a temporary object-like dictionary with these fields
-        'products': products,            #since these fields are not part of a model
-        'count': len(products),
-        'max_price': products.aggregate(max_price=Max('price'))['max_price'] #I don't need to learn how aggregate works for now
-    })
-    return Response(serializer.data)
+#function based view
+# @api_view(['GET'])
+# def product_info(request):
+#     products = Product.objects.all()
+#     serializer = ProductInfoSerializer({ #this passes a dictionary to create a temporary object-like dictionary with these fields
+#         'products': products,            #since these fields are not part of a model
+#         'count': len(products),
+#         'max_price': products.aggregate(max_price=Max('price'))['max_price'] #I don't need to learn how aggregate works for now
+#     })
+#     return Response( serializer.data)
+class ProdcutInfoAPIView(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductInfoSerializer({ #this passes a dictionary to create a temporary object-like dictionary with these fields
+            'products': products,            #since these fields are not part of a model
+            'count': len(products),
+            'max_price': products.aggregate(max_price=Max('price'))['max_price'] #I don't need to learn how aggregate works for now
+        })
+        return Response(serializer.data)
