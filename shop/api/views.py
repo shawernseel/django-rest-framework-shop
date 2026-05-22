@@ -5,6 +5,7 @@ from api.models import Product, Order, OrderItem
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
 #function based views
 # @api_view(['GET']) #this decorator limits to GET requests #this makes it so you can view the browsable api
@@ -43,6 +44,7 @@ class OrderListAPIView(generics.RetrieveAPIView):
 class UserOrderListAPIView(generics.ListAPIView):
     queryset = Order.objects.prefetch_related('items__product')
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = super().get_queryset() #this gets the base queryset from the super ListAPIView
