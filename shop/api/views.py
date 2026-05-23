@@ -14,9 +14,16 @@ from rest_framework.views import APIView
 #     products = Product.objects.all() #ORM query
 #     serializer = ProductSerializer(products, many=True) #for querysets you need many=True
 #     return Response(serializer.data)
-class ProductListAPIView(generics.ListAPIView):
-    queryset = Product.objects.filter(stock__gt=0) #this will filter out stocks <= 0
+# class ProductListAPIView(generics.ListAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+# class ProductCreateAPIView(generics.CreateAPIView):
+#     model = Product
+#     serializer_class = ProductSerializer
+class ProductListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
 
 # @api_view(['GET'])
 # def product_detail(request, pk):
