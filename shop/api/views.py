@@ -35,10 +35,16 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
 #     products = get_object_or_404(Product, pk=pk)
 #     serializer = ProductSerializer(products) #converts to json
 #     return Response(serializer.data)
-class ProductDetailAPIView(generics.RetrieveAPIView):
-    products = Product.objects.all()
+class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_url_kwarg = 'product_id' #this sets what url argument we use when looking up value in urls.py. Default is 'fk'.
+
+    def get_permissions(self):
+        self.permission_classes = [AllowAny] #allow anyone to use endpoint
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
 
 # @api_view(['GET'])
 # def order_list(request):
