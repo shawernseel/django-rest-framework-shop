@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny 
 from rest_framework.views import APIView
-from api.filters import ProductFilter
+from api.filters import ProductFilter, InstockFilterBackend
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -32,6 +32,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         DjangoFilterBackend,  #need to have this because filter_backends overrides filter defined in settings
         filters.SearchFilter, 
         filters.OrderingFilter,
+        InstockFilterBackend,   #this will auto filterout all stocks <= 0
     ]
     search_fields = ['=name', 'description'] #=name means exact match in name
     ordering_fields = ['name', 'price', 'stock']
