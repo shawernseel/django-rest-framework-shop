@@ -1,16 +1,17 @@
 from django.db.models import Max
 from django.shortcuts import get_object_or_404
-from api.serializers import ProductSerializer, OrderSerializer, ProductInfoSerializer
-from api.models import Product, Order, OrderItem
-from rest_framework.response import Response
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 from rest_framework.decorators import api_view
-from rest_framework import generics
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny 
 from rest_framework.views import APIView
-from api.filters import ProductFilter, InstockFilterBackend
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
 
+from api.filters import ProductFilter, InstockFilterBackend
+from api.models import Product, Order, OrderItem
+from api.serializers import ProductSerializer, OrderSerializer, ProductInfoSerializer
+from api.pagination import ProductLimitOffsetPagination, ProductPageNumberPagination
 
 #function based views
 # @api_view(['GET']) #this decorator limits to GET requests #this makes it so you can view the browsable api
@@ -25,7 +26,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 #     model = Product
 #     serializer_class = ProductSerializer
 class ProductListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.order_by('pk')
     serializer_class = ProductSerializer
     filterset_class = ProductFilter
     filter_backends = [
@@ -36,6 +37,8 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     ]
     search_fields = ['=name', 'description'] #=name means exact match in name
     ordering_fields = ['name', 'price', 'stock']
+    #pagination_class = ProductPagination
+    pagination_class = ProductLimitOffsetPagination
 
     def get_permissions(self):
         self.permission_classes = [AllowAny] #allow any to use endpoint
