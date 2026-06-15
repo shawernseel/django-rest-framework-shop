@@ -1,17 +1,18 @@
+from api.filters import InstockFilterBackend, OrderFilter, ProductFilter
+from api.models import Order, OrderItem, Product
+from api.pagination import (ProductLimitOffsetPagination,
+                            ProductPageNumberPagination)
+from api.serializers import (OrderSerializer, ProductInfoSerializer,
+                             ProductSerializer)
 from django.db.models import Max
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action, api_view
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny 
 from rest_framework.views import APIView
 
-from api.filters import ProductFilter, InstockFilterBackend
-from api.models import Product, Order, OrderItem
-from api.serializers import ProductSerializer, OrderSerializer, ProductInfoSerializer
-from api.pagination import ProductLimitOffsetPagination, ProductPageNumberPagination
 
 #function based views
 # @api_view(['GET']) #this decorator limits to GET requests #this makes it so you can view the browsable api
@@ -89,8 +90,21 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.prefetch_related('items__product')
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     pagination_class = None
+    filterset_class = OrderFilter
+    filter_backends = [DjangoFilterBackend]
+
+    @action(
+        detail=False, #detail=False for single object; detail=True for list of objects
+        methods=['get'],
+        url_path='user-orders', # GET /orders/user_orders/ is the router generated route. Now it is GET /orders/user-orders/
+        #permission_classes=[IsAuthenticated] #can add permissions for just this action
+    )
+    def user_orders(self, request):
+        orders = self.get_queryset().filter(user=request.user)
+        serializer = self.get_serializer(orders, many=True)
+        return Response(serializer.data)
 
 
 #function based view

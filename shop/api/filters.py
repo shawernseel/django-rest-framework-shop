@@ -1,5 +1,5 @@
 import django_filters
-from api.models import Product
+from api.models import Order, Product
 from rest_framework import filters
 
 #Pure DRF filtering
@@ -14,4 +14,13 @@ class ProductFilter(django_filters.FilterSet):
         fields = {
             'name': ['iexact', 'icontains'], #i just means case insensitive
             'price': ['exact', 'lt', 'gt', 'range']
+        }
+
+class OrderFilter(django_filters.FilterSet):
+    created_at = django_filters.DateFilter(field_name='created_at__date') #uses django_filters DateFilter so that it works by day not minutes/secs
+    class Meta:
+        model = Order
+        fields = {
+            'status': ['exact'],
+            'created_at': ['exact', 'lt', 'gt']
         }
