@@ -2,7 +2,7 @@ from django.db.models import Max
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from rest_framework import filters, generics, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny 
@@ -37,7 +37,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     ]
     search_fields = ['=name', 'description'] #=name means exact match in name
     ordering_fields = ['name', 'price', 'stock']
-    #pagination_class = ProductPagination
+    #pagination_class = ProductPageNumberPagination
     pagination_class = ProductLimitOffsetPagination
 
     def get_permissions(self):
@@ -71,20 +71,27 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 #     ) #.all() #prefetch_related automatically includes .all() so we don't need a .all() here
 #     serializer = OrderSerializer(orders, many=True)
 #     return Response(serializer.data)
-class OrderListAPIView(generics.RetrieveAPIView):
-    products = Order.objects.prefetch_related('items__product')
-    serializer_class = OrderSerializer
+# class OrderListAPIView(generics.RetrieveAPIView):
+#     products = Order.objects.prefetch_related('items__product')
+#     serializer_class = OrderSerializer
 
 #this displays all orders made by a specific user
-class UserOrderListAPIView(generics.ListAPIView):
+# class UserOrderListAPIView(generics.ListAPIView):
+#     queryset = Order.objects.prefetch_related('items__product')
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self): #from GenericAPIView (superclass of ListAPIView)
+#         qs = super().get_queryset() #this gets the base queryset from the super ListAPIView
+#         return qs.filter(user=self.request.user) #filter for user that is authenticated
+#         #request is there in class based view get_queryset method
+
+class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.prefetch_related('items__product')
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    pagination_class = None
 
-    def get_queryset(self): #from GenericAPIView (superclass of ListAPIView)
-        qs = super().get_queryset() #this gets the base queryset from the super ListAPIView
-        return qs.filter(user=self.request.user) #filter for user that is authenticated
-        #request is there in class based view get_queryset method
 
 #function based view
 # @api_view(['GET'])

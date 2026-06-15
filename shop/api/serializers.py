@@ -39,6 +39,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         )
 
 class OrderSerializer(serializers.ModelSerializer):
+    order_id = serializers.UUIDField(read_only=True) #makes it so that when creating an Order we don't need to input the ID its generated here
     items = OrderItemSerializer(many=True, read_only=True) #serializes OrderItem objects in Order when serializing Order
     total_price = serializers.SerializerMethodField() #by default this is serializers.SerializerMethodField(method_name='get_total_price')
 
