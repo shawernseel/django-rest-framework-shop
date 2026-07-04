@@ -63,6 +63,7 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             self.permission_classes = [IsAdminUser]
         return super().get_permissions()
 
+#1st rendition
 # @api_view(['GET'])
 # def order_list(request):
 #     #orders = Order.objects.all() #bellow is an optomization for this line
@@ -72,6 +73,8 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 #     ) #.all() #prefetch_related automatically includes .all() so we don't need a .all() here
 #     serializer = OrderSerializer(orders, many=True)
 #     return Response(serializer.data)
+
+#2nd rendition
 # class OrderListAPIView(generics.RetrieveAPIView):
 #     products = Order.objects.prefetch_related('items__product')
 #     serializer_class = OrderSerializer
@@ -87,6 +90,26 @@ class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 #         return qs.filter(user=self.request.user) #filter for user that is authenticated
 #         #request is there in class based view get_queryset method
 
+#3rd rendition, users can still see all users' orders via the /orders endpoint (even though /orders/user-orders limits it)
+# class OrderViewSet(viewsets.ModelViewSet):
+#     queryset = Order.objects.prefetch_related('items__product')
+#     serializer_class = OrderSerializer
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = None
+#     filterset_class = OrderFilter
+#     filter_backends = [DjangoFilterBackend]
+
+#     @action(
+#         detail=False, #detail=False for single object; detail=True for list of objects
+#         methods=['get'],
+#         url_path='user-orders', # GET /orders/user_orders/ is the router generated route. Now it is GET /orders/user-orders/
+#         #permission_classes=[IsAuthenticated] #can add permissions for just this action
+#     )
+#     def user_orders(self, request):
+#         orders = self.get_queryset().filter(user=request.user)
+#         serializer = self.get_serializer(orders, many=True)
+#         return Response(serializer.data)
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.prefetch_related('items__product')
     serializer_class = OrderSerializer
@@ -95,16 +118,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     filterset_class = OrderFilter
     filter_backends = [DjangoFilterBackend]
 
-    @action(
-        detail=False, #detail=False for single object; detail=True for list of objects
-        methods=['get'],
-        url_path='user-orders', # GET /orders/user_orders/ is the router generated route. Now it is GET /orders/user-orders/
-        #permission_classes=[IsAuthenticated] #can add permissions for just this action
-    )
-    def user_orders(self, request):
-        orders = self.get_queryset().filter(user=request.user)
-        serializer = self.get_serializer(orders, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not self.request.user.is_staff:
+            qs = qs.filter(user=self.request.user) #limiting visible orders to users' orders if user is not staff
+        return qs
 
 
 #function based view
