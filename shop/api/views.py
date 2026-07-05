@@ -124,7 +124,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     # overriding special method that let's you dynamically pick the serializer class
     def get_serializer_class(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         # can also check if POST: if self.request.method == 'POST'<<
-        if self.action == 'create':
+        if self.action in ('create', 'update'):
             return OrderCreateSerializer
         return super().get_serializer_class()
 

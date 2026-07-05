@@ -1,5 +1,5 @@
+from django.db import transaction 
 from rest_framework import serializers
-
 from .models import Order, OrderItem, Product
 
 
@@ -42,31 +42,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
         )
 
 class OrderCreateSerializer(serializers.ModelSerializer):
+    #serializes nested "items" data, it will serialize each one because of the many=True
     class OrderItemCreateSerializer(serializers.ModelSerializer): #we can also define this outside, it's here because it is used nowhere else
         class Meta:
             model = OrderItem
             fields = ('product', 'quantity')
 
-    items = OrderItemCreateSerializer(many=True)
-
-    def create(self, validated_data):
-        # validated_data is the cleaned version of the request body.
-        # DRF has already checked that the data is valid and converted IDs into actual model objects, for example:
-        # Request data:
-        # {"user": 2, "status": "Pending", "items": [{"product": 27, "quantity": 2},{"product": 28, "quantity": 2}]}
-        #
-        # validated_data:
-        # {"user": <User: john-doe>, "status": "Pending",
-        #  "items": [{"product": <Product: Velvet Underground & Nico>, "quantity": 2}, {'product': <Product 28 Object>, 'quantity': 1}]
-        orderitem_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data) #is equivalent to below
-        #order = Order.objects.create(user=validated_data["user"],status=validated_data["status"])
-
-        for item in orderitem_data:
-            OrderItem.objects.create(order=order, **item)
-            #order = <Order: Order 61f95f59-2dfc-4dbf-9c0f-5177b1d730cd by john-doe>
-            #item = {'product': <Product: Velvet Underground & Nico>, 'quantity': 2}
-        return order
+    order_id = serializers.UUIDField(read_only=True)
+    items = OrderItemCreateSerializer(many=True, required=False)
 
     class Meta:
         model = Order
@@ -79,6 +62,44 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'user': {'read_only': True}
         }
+
+    def create(self, validated_data):
+        # validated_data is the cleaned version of the request body.
+        # DRF has already checked that the data is valid and converted IDs into actual model objects, for example:
+        # Request data:
+        # {"user": 2, "status": "Pending", "items": [{"product": 27, "quantity": 2},{"product": 28, "quantity": 2}]}
+        #
+        # validated_data:
+        # {"user": <User: john-doe>, "status": "Pending",
+        #  "items": [{"product": <Product: Velvet Underground & Nico>, "quantity": 2}, {'product': <Product 28 Object>, 'quantity': 1}]
+        orderitem_data = validated_data.pop('items')
+
+        with transaction.atomic(): #if any part fails it will roll back ro avoid partial changes
+            order = Order.objects.create(**validated_data) #is equivalent to below
+            #order = Order.objects.create(user=validated_data["user"],status=validated_data["status"])
+
+            for item in orderitem_data:
+                OrderItem.objects.create(order=order, **item)
+                #order = <Order: Order 61f95f59-2dfc-4dbf-9c0f-5177b1d730cd by john-doe>
+                #item = {'product': <Product: Velvet Underground & Nico>, 'quantity': 2}
+        return order
+    
+    def update(self, instance, validated_data):
+        orderitem_data = validated_data.pop('items')
+
+        with transaction.atomic():
+            #update user and status, DRF can serialize non nested data by default
+            instance = super().update(instance, validated_data)
+
+            if orderitem_data is not None:
+                # Clear existing items (optional, depends on requirements)
+                instance.items.all().delete()
+
+                #Recreate items with the updated data
+                for item in orderitem_data:
+                    OrderItem.objects.create(order=instance, **item)
+
+        return instance
 
 class OrderSerializer(serializers.ModelSerializer):
     order_id = serializers.UUIDField(read_only=True) #makes it so that when creating an Order we don't need to input the ID its generated here
