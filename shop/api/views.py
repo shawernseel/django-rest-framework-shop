@@ -3,7 +3,7 @@ from api.models import Order, OrderItem, Product
 from api.pagination import (ProductLimitOffsetPagination,
                             ProductPageNumberPagination)
 from api.serializers import (OrderSerializer, ProductInfoSerializer,
-                             ProductSerializer)
+                             ProductSerializer, OrderCreateSerializer)
 from django.db.models import Max
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -118,6 +118,17 @@ class OrderViewSet(viewsets.ModelViewSet):
     filterset_class = OrderFilter
     filter_backends = [DjangoFilterBackend]
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    # overriding special method that let's you dynamically pick the serializer class
+    def get_serializer_class(self):  # pyright: ignore[reportIncompatibleMethodOverride]
+        # can also check if POST: if self.request.method == 'POST'<<
+        if self.action == 'create':
+            return OrderCreateSerializer
+        return super().get_serializer_class()
+
+    # overriding special method for dynamic query filtering
     def get_queryset(self):
         qs = super().get_queryset()
         if not self.request.user.is_staff:

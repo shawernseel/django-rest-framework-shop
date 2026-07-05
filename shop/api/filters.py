@@ -2,6 +2,7 @@ import django_filters
 from api.models import Order, Product
 from rest_framework import filters
 
+
 #Pure DRF filtering
 class InstockFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):

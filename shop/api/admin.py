@@ -1,5 +1,6 @@
-from django.contrib import admin
 from api.models import Order, OrderItem, User
+from django.contrib import admin
+
 
 # Register your models here.
 class OrderItemInline(admin.TabularInline): #attaches related objects to order when creating the order from admin

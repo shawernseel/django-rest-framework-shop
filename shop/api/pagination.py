@@ -1,4 +1,6 @@
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
+
 
 class ProductPageNumberPagination(PageNumberPagination):
     page_size = 2

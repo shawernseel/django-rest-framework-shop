@@ -1,5 +1,5 @@
+from api.models import Order, OrderItem, Product, User
 from django.core.management.base import BaseCommand
-from api.models import User, Product, Order, OrderItem
 
 
 class Command(BaseCommand):

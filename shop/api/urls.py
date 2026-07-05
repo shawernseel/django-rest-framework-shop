@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
 from rest_framework.routers import DefaultRouter
+
+from . import views
 
 urlpatterns = [
     path('products/', views.ProductListCreateAPIView.as_view()), #we need to use as_view() for class based views

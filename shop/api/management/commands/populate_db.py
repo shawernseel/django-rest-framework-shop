@@ -1,9 +1,9 @@
 import random
 from decimal import Decimal
 
+from api.models import Order, OrderItem, Product, User
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
-from api.models import User, Product, Order, OrderItem
 
 # This script populates the database with dummy data for testing purpouses
 

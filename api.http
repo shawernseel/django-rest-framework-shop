@@ -71,6 +71,29 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8000/orders/ HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMTQ2MjE3LCJpYXQiOjE3ODMxNDU5MTcsImp0aSI6IjM0YTU1NGY2MmMyYTQ2MDY4ZjUzYTRjODgxZDllM2E1IiwidXNlcl9pZCI6IjIifQ.CuEJtBgcTBO-CKHMzpb7w4rF5dnkLdSi2pgo533N2tM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMjIwNTk5LCJpYXQiOjE3ODMyMjAyOTksImp0aSI6ImFlMjUzOGJiYmZhMjRhNTQ4YzkzNjU1MjhkNmZiZTM4IiwidXNlcl9pZCI6IjIifQ.7XYaBjsiPcC5a6cu7egEmrkMH2b9-3a4OkNKf9TOwoc
 
 ###
+
+GET http://localhost:8000/orders/374c828b-fce0-4791-884e-ffebc0a0398c HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMTQ3Mjg1LCJpYXQiOjE3ODMxNDY5ODUsImp0aSI6IjcwMDE1YWQ2ZjUwYTQ3MGI5MmVmODMwNzk3N2U4NDg3IiwidXNlcl9pZCI6IjIifQ.Lk8Q_-UixxEAq0LRFlRm9q79AhqqkQ7fzZGvBaLdYFE
+
+###
+
+POST http://localhost:8000/orders/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgzMjI3NTA2LCJpYXQiOjE3ODMyMjcyMDYsImp0aSI6ImEyZTI4OTg2NmQ2NTQxMmU4ZDM0OTliNGM4NTA2NDgxIiwidXNlcl9pZCI6IjIifQ.0V6jLTqeLDYKwse0iubsNT7gDgfcdWaVOfOL4lUND5A
+
+{
+    "status": "Pending",
+    "items": [
+        {
+            "product": 27,
+            "quantity": 2
+        },
+        {
+            "product": 28,
+            "quantity": 1
+        }
+    ]
+}

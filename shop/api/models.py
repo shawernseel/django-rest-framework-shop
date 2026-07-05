@@ -1,7 +1,9 @@
 import uuid
-from django.db import models
-from django.contrib.auth.models import AbstractUser
+
 from django.conf import settings
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
 
 #need to add AUTH_USER_MODEL in settings.py
 class User(AbstractUser): #Abstracts Django's default User model
